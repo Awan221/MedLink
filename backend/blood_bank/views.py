@@ -151,7 +151,7 @@ class BloodDonationViewSet(viewsets.ModelViewSet):
 class BloodRequestViewSet(viewsets.ModelViewSet):
     queryset = BloodRequest.objects.all()
     serializer_class = BloodRequestSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['center', 'blood_group', 'priority', 'status']
     search_fields = ['patient_name', 'reason']

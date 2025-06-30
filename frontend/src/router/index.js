@@ -133,10 +133,14 @@ const routes = [
   },
   // Routes publiques (portail)
   {
-    path: '/public',
+    path: '/',
     name: 'PublicPortal',
     component: PublicPortal,
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/public',
+    redirect: '/'
   },
   {
     path: '/public/statistiques',
@@ -218,10 +222,6 @@ const routes = [
     name: 'AdminAlerts',
     component: AdminAlerts,
     meta: { requiresAuth: true, adminOnly: true }
-  },  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/Home.vue')
   },
   {
     path: '/admin/dashboard',

@@ -15,7 +15,7 @@ from authentication.permissions import IsMedecin, IsInfirmier, IsAdminUser
 class BloodDonationCenterViewSet(viewsets.ModelViewSet):
     queryset = BloodDonationCenter.objects.filter(is_active=True)
     serializer_class = BloodDonationCenterSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['region', 'city', 'is_active']
     search_fields = ['name', 'city', 'region', 'address']
