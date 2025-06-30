@@ -244,22 +244,37 @@ export default {
         
         // Récupérer les rôles de l'utilisateur
         const userRoles = store.getters['auth/userRoles'] || []
-        const isSuperAdmin = userRoles.includes('SUPER_ADMIN')
-        // Vérifier les deux cas de sensibilité de casse pour le rôle de médecin
-        const isDoctor = userRoles.some(role => ['DOCTOR', 'doctor'].includes(role))
+        
+        // Fonction pour vérifier les rôles sans tenir compte de la casse
+        const hasRole = (role) => {
+          const roleUpper = role.toUpperCase()
+          return userRoles.some(r => r.toUpperCase() === roleUpper)
+        }
         
         // Définir le chemin de redirection par défaut
-        let redirectPath = route.query.redirect || '/dashbodard'
+        let redirectPath = route.query.redirect || '/'
         
         // Rediriger en fonction du rôle si pas de redirection spécifique
         if (!route.query.redirect) {
-          if (isSuperAdmin) {
+          // Vérifier d'abord les rôles spécifiques
+          if (hasRole('BLOOD_BANK_MANAGER') || hasRole('blood_bank_manager')) {
+            redirectPath = '/blood/dashboard'
+          } 
+          // Puis vérifier les rôles d'administration
+          else if (hasRole('SUPER_ADMIN') || hasRole('super_admin') || 
+                  hasRole('ADMIN') || hasRole('admin')) {
             redirectPath = '/admin/dashboard'
-          } else if (isDoctor) {
+          } 
+          // Enfin, rediriger tous les autres rôles médicaux vers le dashboard médecin
+          else if (hasRole('DOCTOR') || hasRole('doctor') ||
+                  hasRole('RADIOLOGIST') || hasRole('radiologist') ||
+                  hasRole('SPECIALIST') || hasRole('specialist') ||
+                  hasRole('TECHNICIAN') || hasRole('technician')) {
             redirectPath = '/medecin/dashboard'
           }
         }
         
+        // Effectuer la redirection
         router.push(redirectPath)
       } catch (error) {
         console.error('Login error:', error)

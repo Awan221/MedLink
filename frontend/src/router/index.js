@@ -227,7 +227,11 @@ const routes = [
     path: '/admin/dashboard',
     name: 'AdminDashboard',
     component: AdminDashboard,
-    meta: { requiresAuth: true, roles: ['SUPER_ADMIN', 'ADMIN'] }
+    meta: { 
+      requiresAuth: true, 
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN,'super_admin','admin','SUPER_ADMIN','ADMIN'],
+      title: 'Tableau de bord administrateur'
+    }
   },
   {
     path: '/admin/permissions',
@@ -437,26 +441,24 @@ router.beforeEach(async (to, from, next) => {
         await store.dispatch('auth/fetchUserInfo')
         const updatedUserRoles = store.getters['auth/userRoles'] || []
         
-        // Redirection personnalisée selon le rôle
-        if (hasRole(updatedUserRoles, ROLES.SUPER_ADMIN)) {
-          if (!to.path.startsWith('/admin')) {
+        // Ne rediriger que si on n'est pas déjà sur une page autorisée
+        const isOnAuthorizedPage = 
+          (hasRole(updatedUserRoles, [ROLES.SUPER_ADMIN, ROLES.ADMIN]) && to.path.startsWith('/admin')) ||
+          (hasRole(updatedUserRoles, ROLES.BLOOD_BANK_MANAGER) && to.path.startsWith('/blood')) ||
+          (!to.path.startsWith('/admin') && !to.path.startsWith('/blood'))
+        
+        if (!isOnAuthorizedPage) {
+          // Redirection personnalisée selon le rôle
+          if (hasRole(updatedUserRoles, ROLES.SUPER_ADMIN) || hasRole(updatedUserRoles, ROLES.ADMIN)) {
             next({ path: '/admin/dashboard' })
             return
-          }
-        } else if (hasRole(updatedUserRoles, ROLES.ADMIN)) {
-          if (!to.path.startsWith('/admin')) {
-            next({ path: '/admin/inscriptions' })
-            return
-          }
-        } else if (hasRole(updatedUserRoles, ROLES.BLOOD_BANK_MANAGER)) {
-          if (!to.path.startsWith('/blood')) {
+          } else if (hasRole(updatedUserRoles, ROLES.BLOOD_BANK_MANAGER)) {
             next({ path: '/blood/dashboard' })
             return
+          } else {
+            next({ path: '/medecin/dashboard' })
+            return
           }
-        } else if (to.path.startsWith('/admin')) {
-          // Empêcher l'accès aux routes admin pour les non-admins
-          next({ path: '/dashboard' })
-          return
         }
       } catch (error) {
         console.error('Erreur lors du chargement des informations utilisateur:', error)
@@ -495,14 +497,32 @@ router.beforeEach(async (to, from, next) => {
           userRoles,
           requiredRoles: to.meta.roles 
         })
-        next({ 
-          name: 'Dashboard',
-          query: { 
-            error: 'unauthorized',
-            message: 'Vous n\'avez pas les droits nécessaires pour accéder à cette page.'
-          } 
-        })
-        return
+        
+        // Éviter la boucle de redirection
+        if (to.path === '/admin/dashboard') {
+          next('/medecin/dashboard')
+          return
+        }
+        
+        // Déterminer la page de redirection en fonction du rôle
+        let redirectPath = '/medecin/dashboard'
+        if (hasRole(userRoles, [ROLES.SUPER_ADMIN, ROLES.ADMIN])) {
+          redirectPath = '/admin/dashboard'
+        } else if (hasRole(userRoles, ROLES.BLOOD_BANK_MANAGER)) {
+          redirectPath = '/blood/dashboard'
+        }
+        
+        // Éviter la boucle de redirection
+        if (to.path !== redirectPath) {
+          next({ 
+            path: redirectPath,
+            query: { 
+              error: 'unauthorized',
+              message: 'Vous n\'avez pas les droits nécessaires pour accéder à cette page.'
+            } 
+          })
+          return
+        }
       }
     }
 
@@ -527,7 +547,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Vérifier l'accès adminOnly (pour la rétrocompatibilité)
-    if (to.matched.some(record => record.meta.adminOnly)) {
+    /*if (to.matched.some(record => record.meta.adminOnly)) {
       const isAdmin = hasRole(userRoles, [ROLES.ADMIN, ROLES.SUPER_ADMIN])
       if (!isAdmin) {
         next({ 
@@ -539,7 +559,7 @@ router.beforeEach(async (to, from, next) => {
         })
         return
       }
-    }
+    }*/
 
     // Tout est bon, on peut continuer
     next()
