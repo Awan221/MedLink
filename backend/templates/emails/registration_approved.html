@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Votre compte MedLink a été approuvé</h1>
+        </div>
+        <div class="content">
+            <p>Cher(e) {{ user_name }},</p>
+            <p>Nous sommes heureux de vous informer que votre demande d'inscription a été approuvée. Votre compte est maintenant actif.</p>
+            <p>Pour vous connecter, utilisez les identifiants suivants :</p>
+            <ul>
+                <li>Email : votre adresse email</li>
+                <li>Mot de passe temporaire : {{ temporary_password }}</li>
+            </ul>
+            <p>Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
+            <p>
+                <a href="{{ login_url }}" class="button">Se connecter</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+            <p>&copy; 2024 MedLink. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html> 

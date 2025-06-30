@@ -1,0 +1,32 @@
+{
+  "Name": "Orthanc DICOM Server",
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  "HttpPort": 8042,
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": {
+    "orthanc": "orthanc"
+  },
+  "DicomAet": "ORTHANC",
+  "DicomPort": 4242,
+  "DicomModalities": {
+    "sample": ["SAMPLE", "127.0.0.1", 104]
+  },
+  "OrthancPeers": {},
+  "HttpHeaders": {
+    "Access-Control-Allow-Origin": "*"
+  },
+  "Plugins": [
+    "/usr/share/orthanc/plugins"
+  ],
+  "PythonScript": "/etc/orthanc/python/script.py",
+  "WebViewer": {
+    "Enable": true,
+    "Plugins": [
+      "cornerstone",
+      "dicom-pdf",
+      "dicom-video"
+    ]
+  }
+}
